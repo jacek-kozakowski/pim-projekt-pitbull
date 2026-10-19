@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import { Screen } from '@/components/screen';
+import { ThemedText } from '@/components/themed-text';
 
 export default function Profile() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Profile</Text>
-    </View>
-  );
+    <Screen centered>
+      <ThemedText type="subtitle">Profil</ThemedText>
+    </Screen>
+  )
 }

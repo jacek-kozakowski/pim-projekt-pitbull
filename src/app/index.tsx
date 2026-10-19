@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import { Screen } from '@/components/screen';
+import { ThemedText } from '@/components/themed-text';
 
-export default function Ranking() {
+export default function Game() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Gra</Text>
-    </View>
+    <Screen centered>
+      <ThemedText type="subtitle">Gra</ThemedText>
+    </Screen>
   );
 }

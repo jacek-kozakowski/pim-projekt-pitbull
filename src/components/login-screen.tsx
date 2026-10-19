@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { ThemedButton } from '@/components/themed-button';
+import { ThemedInput } from '@/components/themed-input';
+import { ThemedText } from '@/components/themed-text';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function LoginScreen() {
+    const theme = useTheme();
     const [mode, setMode] = useState<'login' | 'register'>('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -10,55 +15,77 @@ export default function LoginScreen() {
     const [busy, setBusy] = useState(false);
 
     async function submit(){
+        Keyboard.dismiss();
         if (!email || !password || (mode === 'register' && !nick)) {
             Alert.alert('Error', 'Uzupełnij wszystkie pola');
             return;
         }
         setBusy(true);
-        const { error } = mode === 'login'
-            ? await supabase.auth.signInWithPassword({ email, password })
-            : await supabase.auth.signUp({ email, password, options: { data: { nick } } });
+        if (mode === 'login') {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) Alert.alert('Error', error.message);
+        } else {
+            const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { nick } }, });
+            if (error){
+                Alert.alert('Error', error.message);
+            }else if (!data.session){
+                Alert.alert('Success', 'Sprawdź swoją skrzynkę pocztową i kliknij w link aktywacyjny');
+                setMode('login');
+            }
+        }
         setBusy(false);
-        if (error) Alert.alert('Error', error.message);
     }
 
-    const input = {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 14,
-        borderRadius: 12,
-        marginBottom: 12,
-    } as const;
-
     return (
-        <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
-        <Text style={{ fontSize: 28, fontWeight: '700', marginBottom: 24 }}>
-            {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
-        </Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: theme.background }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag">
 
-        {mode === 'register' && (
-            <TextInput style={input} placeholder="Nick" value={nick} onChangeText={setNick} autoCapitalize="none" />
-        )}
-        <TextInput
-            style={input}
-            placeholder="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-        />
-        <TextInput style={input} placeholder="Hasło (min. 6 znaków)" value={password} onChangeText={setPassword} secureTextEntry />
+          <Pressable onPress={Keyboard.dismiss} accessible={false}>
+            <ThemedText style={{ fontSize: 28, fontWeight: '700', marginBottom: 24 }}>
+              {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
+            </ThemedText>
 
-        <Pressable
-            onPress={submit}
-            disabled={busy}
-            style={{ backgroundColor: '#D97706', padding: 16, borderRadius: 999, alignItems: 'center' }}>
-            {busy ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '700' }}>{mode === 'login' ? 'Zaloguj' : 'Zarejestruj'}</Text>}
-        </Pressable>
+            {mode === 'register' && (
+              <ThemedInput
+                placeholder="Nick"
+                value={nick}
+                onChangeText={setNick}
+                autoCapitalize="none"
+              />
+            )}
+            <ThemedInput
+              placeholder="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <ThemedInput
+              placeholder="Hasło (min. 6 znaków)"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-        <Pressable onPress={() => setMode(mode === 'login' ? 'register' : 'login')} style={{ marginTop: 16, alignItems: 'center' }}>
-            <Text>{mode === 'login' ? 'Nie masz konta? Utwórz konto' : 'Masz już konto? Zaloguj się'}</Text>
-        </Pressable>
-        </View>
+            <ThemedButton
+              title={mode === 'login' ? 'Zaloguj' : 'Zarejestruj'}
+              onPress={submit}
+              loading={busy}
+            />
+
+            <ThemedButton
+              variant="link"
+              title={mode === 'login' ? 'Nie masz konta? Utwórz konto' : 'Masz już konto? Zaloguj się'}
+              onPress={() => setMode(mode === 'login' ? 'register' : 'login')}
+              style={{ marginTop: 16 }}
+            />
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     );
 }
