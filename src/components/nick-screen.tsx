@@ -36,7 +36,7 @@ export default function NickScreen({onDone}: {onDone: () => void}) {
     <KeyboardAvoidingView
         style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: theme.background }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ThemedText style={{ fontSize: 28, fontWeight: '700', marginBottom: 8 }}>
+        <ThemedText style={{ fontSize: 28, lineHeight: 36, fontWeight: '700', marginBottom: 8 }}>
             Wybierz nick
         </ThemedText>
         <ThemedText style={{ marginBottom: 24 }}>

@@ -13,21 +13,13 @@ import NickScreen from '@/components/nick-screen';
 SplashScreen.preventAutoHideAsync();
 
 function Gate() {
-    const { session, loading } = useAuth();
-    const [needsNick, setNeedsNick] = useState<boolean|null>(null);
-    useEffect(() => {
-        if (!session) {
-            setNeedsNick(null);
-            return;
-        }
-        supabase.from('profiles').select('nick_confirmed').eq('id', session.user.id).single().then(({ data }) => setNeedsNick(data ? !data.nick_confirmed : false));
+    const { session, profile, loading, refreshProfile } = useAuth();
 
-    }, [session?.user.id]);
 
     if (loading) return null;
     if (!session) return <LoginScreen />;
-    if (needsNick === null) return null;
-    if (needsNick) return <NickScreen onDone={() => setNeedsNick(false)} />;
+    if (!profile) return null;
+    if (!profile.nick_confirmed) return <NickScreen onDone={() => refreshProfile()} />;
     return <AppTabs />;
 }
 
@@ -35,7 +27,7 @@ export default function TabLayout() {
     const dark = useColorScheme() === 'dark';
     const base = dark ? DarkTheme : DefaultTheme;
     const colors = Colors[dark ? 'dark' : 'light'];
-    // Kolory nawigacji (tło ekranów, nagłówki) brane z naszego motywu
+
     const navTheme = {
         ...base,
         colors: {
