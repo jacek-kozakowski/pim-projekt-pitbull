@@ -5,6 +5,7 @@ import { ThemedButton } from '@/components/themed-button';
 import { ThemedInput } from '@/components/themed-input';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
+import { signInWithGoogle } from '@/lib/google-auth';
 
 export default function LoginScreen() {
     const theme = useTheme();
@@ -35,6 +36,17 @@ export default function LoginScreen() {
         }
         setBusy(false);
     }
+    async function google() {
+        Keyboard.dismiss();
+        setBusy(true);
+        try{
+            await signInWithGoogle();
+        } catch (error : any) {
+            Alert.alert('Error', error.message || 'Nie udało się zalogować przez Google!');
+        } finally {
+            setBusy(false);
+        }
+    }
 
     return (
       <KeyboardAvoidingView
@@ -46,44 +58,52 @@ export default function LoginScreen() {
           keyboardDismissMode="on-drag">
 
           <Pressable onPress={Keyboard.dismiss} accessible={false}>
-            <ThemedText style={{ fontSize: 28, fontWeight: '700', marginBottom: 24 }}>
-              {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
+            <ThemedText style={{ fontSize: 28, lineHeight: 36, fontWeight: '700', marginBottom: 24 }}>
+                {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
             </ThemedText>
 
             {mode === 'register' && (
-              <ThemedInput
+            <ThemedInput
                 placeholder="Nick"
                 value={nick}
                 onChangeText={setNick}
                 autoCapitalize="none"
-              />
+            />
             )}
             <ThemedInput
-              placeholder="E-mail"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
+                placeholder="E-mail"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
             />
             <ThemedInput
-              placeholder="Hasło (min. 6 znaków)"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
+                placeholder="Hasło (min. 6 znaków)"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
             />
 
             <ThemedButton
-              title={mode === 'login' ? 'Zaloguj' : 'Zarejestruj'}
-              onPress={submit}
-              loading={busy}
+                title={mode === 'login' ? 'Zaloguj' : 'Zarejestruj'}
+                onPress={submit}
+                loading={busy}
+            />
+            <ThemedButton 
+                title = "Zaloguj przez Google"
+                onPress={google}
+                loading={busy}
+                style={{ marginTop: 16 }}
             />
 
             <ThemedButton
-              variant="link"
-              title={mode === 'login' ? 'Nie masz konta? Utwórz konto' : 'Masz już konto? Zaloguj się'}
-              onPress={() => setMode(mode === 'login' ? 'register' : 'login')}
-              style={{ marginTop: 16 }}
+                variant="link"
+                title={mode === 'login' ? 'Nie masz konta? Utwórz konto' : 'Masz już konto? Zaloguj się'}
+                onPress={() => setMode(mode === 'login' ? 'register' : 'login')}
+                style={{ marginTop: 16 }}
             />
+            
+
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
