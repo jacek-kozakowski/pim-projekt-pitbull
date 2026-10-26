@@ -1,4 +1,3 @@
-import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -6,8 +5,20 @@ import { supabase } from '@/lib/supabase';
 
 WebBrowser.maybeCompleteAuthSession();
 
+function getQueryParams(input: string) {
+    const url = new URL(input, 'https://phony.example');
+    const errorCode = url.searchParams.get('errorCode');
+    url.searchParams.delete('errorCode');
+
+    const params: Record<string, string> = {};
+    url.searchParams.forEach((value, key) => { params[key] = value; });
+    new URLSearchParams(url.hash.replace(/^#/, '')).forEach((value, key) => { params[key] = value; });
+
+    return { params, errorCode };
+}
+
 async function createSessionFromUrl(url: string) {
-    const { params, errorCode} = QueryParams.getQueryParams(url);
+    const { params, errorCode} = getQueryParams(url);
     if (errorCode) throw new Error(`Error code ${errorCode}`);
     
     const {access_token, refresh_token} = params;
