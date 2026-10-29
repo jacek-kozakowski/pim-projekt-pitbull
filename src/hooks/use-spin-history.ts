@@ -12,24 +12,29 @@ export type SpinRow = {
     created_at: string;
 }
 
-export function useSpinHistory(limit?: number) {
+export function useSpinHistory(page: number, pageSize: number) {
     const [spins, setSpins] = useState<SpinRow[]>([]);
+    const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const load = useCallback(async () => {
-        let query = supabase.from('spins').select('id, bet, reels, win, created_at')
-            .order('created_at', { ascending: false });
-        if (limit) query = query.limit(limit);
-        const { data, error } = await query;
+        const from = page * pageSize;
+        const { data, count, error } = await supabase
+            .from('spins')
+            .select('id, bet, reels, win, created_at', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .order('id', { ascending: false })
+            .range(from, from + pageSize - 1);
 
         if (error) setError('Nie udało się pobrać historii spinów');
         else {
             setError(null);
             setSpins(data ?? []);
+            setTotal(count ?? 0);
         }
         setLoading(false);
-    }, [limit]);
+    }, [page, pageSize]);
 
     useFocusEffect(
         useCallback(() => {
@@ -37,5 +42,5 @@ export function useSpinHistory(limit?: number) {
         }, [load])
     );
 
-    return { spins, loading, error, reload: load };
+    return { spins, total, loading, error, reload: load };
 }
