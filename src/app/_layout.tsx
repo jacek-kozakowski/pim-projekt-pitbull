@@ -5,6 +5,7 @@ import NickScreen from '@/components/nick-screen';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import '@/lib/reminders';
 import { loadThemePreference } from '@/lib/theme-preference';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
