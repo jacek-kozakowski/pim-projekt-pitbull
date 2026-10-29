@@ -1,4 +1,7 @@
+import { useState } from 'react';
+import { AppTitle } from '@/components/app-title';
 import { Screen } from '@/components/screen';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/hooks/use-theme';
@@ -7,11 +10,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSpinHistory } from '@/hooks/use-spin-history';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 
+const HISTORY_PREVIEW = 6;
+
 export default function Profile() {
     const theme = useTheme();
     const insets = useSafeAreaInsets();
     const {profile } = useAuth();
-    const { spins, loading, error} = useSpinHistory(20);
+    const [showAll, setShowAll] = useState(false);
+    const { spins, loading, error} = useSpinHistory(showAll ? undefined : HISTORY_PREVIEW);
 
     return (
         <Screen
@@ -21,6 +27,7 @@ export default function Profile() {
                 paddingLeft: insets.left + Spacing.four,
                 paddingRight: insets.right + Spacing.four,
             }}>
+            <AppTitle style={{ marginBottom: 16 }} />
             <ThemedText type="subtitle" style={{ marginBottom: 4 }}>
                 Cześć, {profile?.nick}!
             </ThemedText>
@@ -28,9 +35,22 @@ export default function Profile() {
                 Twój aktualny stan konta: {profile?.balance} ECTS
             </ThemedText>
 
-            <ThemedText style={{ fontSize: 20, lineHeight: 28, fontWeight: '700', marginBottom: 12 }}>
-                Historia gier
-            </ThemedText>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 12,
+                }}>
+                <ThemedText style={{ fontSize: 20, lineHeight: 28, fontWeight: '700' }}>
+                    Historia gier
+                </ThemedText>
+                <ThemedButton
+                    title={showAll ? 'Pokaż mniej' : 'Pokaż wszystko'}
+                    onPress={() => setShowAll(!showAll)}
+                    style={{ paddingVertical: 6, paddingHorizontal: 14 }}
+                />
+            </View>
 
             {error && <ThemedText>{error}</ThemedText>}
             {!loading && !error && spins.length === 0 && (

@@ -2,14 +2,17 @@ import { ActivityIndicator, Pressable, Text, type PressableProps, type StyleProp
 
 import { useTheme } from '@/hooks/use-theme';
 
+const LINK_COLOR = '#3c87f7';
+
 export type ThemedButtonProps = Omit<PressableProps, 'style' | 'children'> & {
   title: string;
+  hint?: string;
   variant?: 'primary' | 'link';
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function ThemedButton({ title, variant = 'primary', loading = false, disabled, style, ...rest }: ThemedButtonProps) {
+export function ThemedButton({ title, hint, variant = 'primary', loading = false, disabled, style, ...rest }: ThemedButtonProps) {
   const theme = useTheme();
   const primary = variant === 'primary';
 
@@ -27,7 +30,8 @@ export function ThemedButton({ title, variant = 'primary', loading = false, disa
         <ActivityIndicator color={primary ? theme.onAccent : theme.text} />
       ) : (
         <Text style={primary ? { color: theme.onAccent, fontWeight: '700' } : { color: theme.text }}>
-          {title}
+          {hint ? `${hint} ` : ''}
+          <Text style={primary ? undefined : { color: LINK_COLOR, textDecorationLine: 'underline' }}>{title}</Text>
         </Text>
       )}
     </Pressable>

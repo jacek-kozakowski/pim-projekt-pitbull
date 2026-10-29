@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppTitle } from '@/components/app-title';
 import { Screen } from '@/components/screen';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -31,6 +32,7 @@ export default function Ranking() {
         paddingLeft: insets.left + Spacing.four,
         paddingRight: insets.right + Spacing.four,
       }}>
+      <AppTitle style={{ marginBottom: 16 }} />
       <ThemedText type="subtitle" style={{ marginBottom: 16 }}>
         Ranking
       </ThemedText>

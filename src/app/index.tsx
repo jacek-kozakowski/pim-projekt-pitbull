@@ -1,15 +1,16 @@
 import * as Haptics from 'expo-haptics';
-import {useRef, useState} from 'react';
-import {Alert, View} from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import Reel, {ITEM_H} from '@/components/reel';
-import {ThemedButton} from '@/components/themed-button';
-import {useAuth} from '@/lib/auth';
-import {supabase} from '@/lib/supabase';
-import {useTheme} from '@/hooks/use-theme';
-import {ThemedView} from '@/components/themed-view';
-import { Screen } from '@/components/screen';
+import { AppTitle } from '@/components/app-title';
+import Reel, { ITEM_H } from '@/components/reel';
+import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 
 
 const BETS = [1, 5, 10];
@@ -17,6 +18,7 @@ const ACCENT = '#D97706';
 
 export default function GameScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { profile, refreshProfile } = useAuth();
   const [spinning, setSpinning] = useState(false);
   const [bet, setBet] = useState(5);
@@ -28,7 +30,7 @@ export default function GameScreen() {
   const winRef = useRef(0);
 
   const balance = profile?.balance ?? 0;
-  
+
   async function spin() {
     if (spinning) return;
     if (balance < bet) {
@@ -37,19 +39,19 @@ export default function GameScreen() {
     }
     setSpinning(true);
     setLastWin(null);
-    
+
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    const {data, error} = await supabase.rpc('spin', {p_bet: bet});
+    const { data, error } = await supabase.rpc('spin', { p_bet: bet });
 
     if (error) {
       setSpinning(false);
       const msg = error.message;
       Alert.alert(
         'Błąd',
-        msg.includes('insufficient funds') ? 'Nie masz wystarczającej ilości środków na koncie, aby wykonać zakład.' 
-        : msg.includes('Network') ? 'Błąd sieci, spróbuj ponownie później.' : msg
+        msg.includes('insufficient funds') ? 'Nie masz wystarczającej ilości środków na koncie, aby wykonać zakład.'
+          : msg.includes('Network') ? 'Błąd sieci, spróbuj ponownie później.' : msg
       );
       refreshProfile();
       return;
@@ -63,7 +65,7 @@ export default function GameScreen() {
   async function onReelStop() {
     stopped.current += 1;
     Haptics.selectionAsync();
-    if (stopped.current < 3 ) return;
+    if (stopped.current < 3) return;
 
     await refreshProfile();
     setLastWin(winRef.current);
@@ -79,12 +81,11 @@ export default function GameScreen() {
 
   return (
     <ThemedView style={{ flex: 1, padding: 24, justifyContent: 'center' }}>
-      <ThemedText style={{ fontSize: 14, lineHeight: 20 }}>Cześć, {profile?.nick}</ThemedText>
+      <AppTitle style={{ position: 'absolute', top: insets.top + 16, left: 24 }} />
+      <ThemedText style={{ fontSize: 24, lineHeight: 32, fontWeight: '600' }}>Cześć, {profile?.nick}</ThemedText>
       <ThemedText style={{ fontSize: 40, lineHeight: 48, fontWeight: '700', marginBottom: 24 }}>
         {balance} ECTS
       </ThemedText>
-
-      {/* kontener bębnów */}
       <View
         style={{
           flexDirection: 'row',
@@ -104,7 +105,6 @@ export default function GameScreen() {
             color={theme.text}
           />
         ))}
-        {/* linia wygranej */}
         <View
           pointerEvents="none"
           style={{
@@ -128,7 +128,7 @@ export default function GameScreen() {
 
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
         {BETS.map((b) => (
-          <ThemedButton key={b} title={`${b} ECTS`} onPress={() => !spinning && setBet(b)} style={{ flex: 1, opacity: b === bet ? 1 : 0.45 }}/>
+          <ThemedButton key={b} title={`${b} ECTS`} onPress={() => !spinning && setBet(b)} style={{ flex: 1, opacity: b === bet ? 1 : 0.45 }} />
         ))}
       </View>
 

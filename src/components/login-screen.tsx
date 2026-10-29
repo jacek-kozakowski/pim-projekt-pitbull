@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Alert, Pressable, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { supabase } from "@/lib/supabase";
+import IdleReels from '@/components/idle-reels';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedInput } from '@/components/themed-input';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
 import { signInWithGoogle } from '@/lib/google-auth';
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView } from "react-native";
 
 export default function LoginScreen() {
     const theme = useTheme();
@@ -58,6 +59,11 @@ export default function LoginScreen() {
           keyboardDismissMode="on-drag">
 
           <Pressable onPress={Keyboard.dismiss} accessible={false}>
+            <ThemedText
+                style={{ fontSize: 32, lineHeight: 40, fontWeight: '700', textAlign: 'center', marginBottom: 16 }}>
+                Jednoręki Bandyta <ThemedText themeColor="accent" style={{ fontSize: 32, lineHeight: 40, fontWeight: '700' }}>ECTS</ThemedText>
+            </ThemedText>
+            <IdleReels />
             <ThemedText style={{ fontSize: 28, lineHeight: 36, fontWeight: '700', marginBottom: 24 }}>
                 {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
             </ThemedText>
@@ -88,6 +94,7 @@ export default function LoginScreen() {
                 title={mode === 'login' ? 'Zaloguj' : 'Zarejestruj'}
                 onPress={submit}
                 loading={busy}
+                style={{ marginTop: 16 }}
             />
             <ThemedButton 
                 title = "Zaloguj przez Google"
@@ -98,7 +105,8 @@ export default function LoginScreen() {
 
             <ThemedButton
                 variant="link"
-                title={mode === 'login' ? 'Nie masz konta? Utwórz konto' : 'Masz już konto? Zaloguj się'}
+                hint={mode === 'login' ? 'Nie masz konta?' : 'Masz już konto?'}
+                title={mode === 'login' ? 'Utwórz konto' : 'Zaloguj się'}
                 onPress={() => setMode(mode === 'login' ? 'register' : 'login')}
                 style={{ marginTop: 16 }}
             />

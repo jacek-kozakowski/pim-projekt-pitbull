@@ -1,7 +1,7 @@
-import {useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
-import {supabase} from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 
 export type SpinRow = {
@@ -12,14 +12,16 @@ export type SpinRow = {
     created_at: string;
 }
 
-export function useSpinHistory(limit = 20) {
+export function useSpinHistory(limit?: number) {
     const [spins, setSpins] = useState<SpinRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const load = useCallback( async () => {
-        const { data, error } = await supabase.from('spins').select('id, bet, reels, win, created_at')
-        .order('created_at', { ascending: false }).limit(limit);
+    const load = useCallback(async () => {
+        let query = supabase.from('spins').select('id, bet, reels, win, created_at')
+            .order('created_at', { ascending: false });
+        if (limit) query = query.limit(limit);
+        const { data, error } = await query;
 
         if (error) setError('Nie udało się pobrać historii spinów');
         else {
