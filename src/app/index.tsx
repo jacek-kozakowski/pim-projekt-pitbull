@@ -4,6 +4,7 @@ import { Alert, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppTitle } from '@/components/app-title';
+import QuizModal from '@/components/quiz-modal';
 import Reel, { ITEM_H } from '@/components/reel';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
@@ -25,6 +26,7 @@ export default function GameScreen() {
   const [spinId, setSpinId] = useState(0);
   const [reels, setReels] = useState([0, 0, 0]);
   const [lastWin, setLastWin] = useState<number | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
 
   const stopped = useRef(0);
   const winRef = useRef(0);
@@ -75,8 +77,9 @@ export default function GameScreen() {
     }
   }
 
-  async function restore() {
-    return; //TODO implement restore points with questions 
+  function closeQuiz() {
+    setQuizOpen(false);
+    refreshProfile();
   }
 
   return (
@@ -133,10 +136,12 @@ export default function GameScreen() {
       </View>
 
       {balance < 1 && !spinning ? (
-        <ThemedButton title="Przywróć punkty" onPress={restore} />
+        <ThemedButton title="Przywróć punkty" onPress={() => setQuizOpen(true)} />
       ) : (
         <ThemedButton title="SPIN" onPress={spin} loading={spinning} />
       )}
+
+      {quizOpen && <QuizModal onClose={closeQuiz} />}
     </ThemedView>
   );
 }
