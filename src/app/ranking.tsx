@@ -1,3 +1,5 @@
+import { useIsFocused } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +13,12 @@ import { Period, useLeaderboard } from '@/hooks/use-leaderboard';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 
+const PODIUM = [
+  { ios: 'crown.fill', android: 'crown', color: '#F5B301' },
+  { ios: 'medal.fill', android: 'military_tech', color: '#9CA3AF' },
+  { ios: 'medal.fill', android: 'military_tech', color: '#CD7F32' },
+] as const;
+
 const TABS: { key: Period; label: string }[] = [
   { key: 'day', label: 'Dziś' },
   { key: 'week', label: 'Tydzień' },
@@ -18,6 +26,10 @@ const TABS: { key: Period; label: string }[] = [
 ];
 
 export default function Ranking() {
+  return useIsFocused() ? <RankingContent /> : null;
+}
+
+function RankingContent() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { session } = useAuth();
@@ -74,7 +86,17 @@ export default function Ranking() {
                 borderWidth: me ? 2 : 0,
                 borderColor: '#D97706',
               }}>
-              <ThemedText style={{ width: 36, fontWeight: '700' }}>#{index + 1}</ThemedText>
+              {index < PODIUM.length ? (
+                <View style={{ width: 36 }}>
+                  <SymbolView
+                    name={{ ios: PODIUM[index].ios, android: PODIUM[index].android, web: PODIUM[index].android }}
+                    tintColor={PODIUM[index].color}
+                    size={26}
+                  />
+                </View>
+              ) : (
+                <ThemedText style={{ width: 36, fontWeight: '700' }}>#{index + 1}</ThemedText>
+              )}
               <View style={{ flex: 1 }}>
                 <ThemedText style={{ fontWeight: '600' }}>{item.nick}</ThemedText>
                 <ThemedText style={{ fontSize: 12, lineHeight: 16, opacity: 0.6 }}>
