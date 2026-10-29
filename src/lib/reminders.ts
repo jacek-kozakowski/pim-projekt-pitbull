@@ -6,10 +6,10 @@ const KEY = 'reminders';
 const CHANNEL = 'reminders';
 
 export const REMINDERS = [
-    { hour: 8, body: 'Twoje ECTS same się nie zdobędą!' },
-    { hour: 12, body: 'Przerwa między zajęciami? Zakręć bębnami.' },
-    { hour: 16, body: 'Sesja nadchodzi. Może czas zakręcić?' },
-    { hour: 20, body: 'Dawno Cię nie było. Automat czeka!' },
+    { hour: 8, body: 'Twoje ECTS same się nie zdobędą! Zagraj!' },
+    { hour: 12, body: 'Przerwa między zajęciami? Zakręć bębnami!' },
+    { hour: 16, body: 'Studia to głupota. Może czas zakręcić?' },
+    { hour: 20, body: 'Spokojny wieczór? Automat czeka!' },
 ];
 
 Notifications.setNotificationHandler({

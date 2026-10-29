@@ -1,5 +1,6 @@
 import { AppTitle } from '@/components/app-title';
 import { Screen } from '@/components/screen';
+import { ScrollbarList } from '@/components/scrollbar-list';
 import { ThemedButton } from '@/components/themed-button';
 import { ThemedText } from '@/components/themed-text';
 import { BottomTabInset, Spacing } from '@/constants/theme';
@@ -8,7 +9,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useIsFocused } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, TextInput, View } from 'react-native';
+import { TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PAGE_SIZE = 8;
@@ -61,7 +62,7 @@ function ProfileContent() {
                 <ThemedText>Brak obrotów. Zagraj pierwszy!</ThemedText>
             )}
 
-            <FlatList
+            <ScrollbarList
                 data={spins}
                 style={{ flex: 1 }}
                 contentContainerStyle={{ paddingBottom: pages > 1 ? 8 : bottomPad }}

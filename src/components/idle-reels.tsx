@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import Reel, { ITEM_H, SYMBOLS } from '@/components/reel';
 import { useTheme } from '@/hooks/use-theme';
 
+const FIRST_SPIN_MS = 700;
 const SPIN_EVERY_MS = 4000;
 const SCALE = 0.8;
 const FULL_HEIGHT = 264;
@@ -14,11 +15,19 @@ export default function IdleReels() {
     const [targets, setTargets] = useState([0, 0, 0]);
 
     useEffect(() => {
-        const id = setInterval(() => {
+        const spin = () => {
             setTargets([0, 1, 2].map(() => Math.floor(Math.random() * SYMBOLS.length)));
             setSpinId((prev) => prev + 1);
-        }, SPIN_EVERY_MS);
-        return () => clearInterval(id);
+        };
+        let interval: ReturnType<typeof setInterval> | undefined;
+        const first = setTimeout(() => {
+            spin();
+            interval = setInterval(spin, SPIN_EVERY_MS);
+        }, FIRST_SPIN_MS);
+        return () => {
+            clearTimeout(first);
+            clearInterval(interval);
+        };
     }, []);
 
     return (
