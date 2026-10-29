@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,6 +16,8 @@ import { supabase } from '@/lib/supabase';
 
 const BETS = [1, 5, 10];
 const ACCENT = '#D97706';
+const BET_VISIBLE_MS = 1200;
+const RESULT_VISIBLE_MS = 2000;
 
 export default function GameScreen() {
   const theme = useTheme();
@@ -27,11 +29,42 @@ export default function GameScreen() {
   const [reels, setReels] = useState([0, 0, 0]);
   const [lastWin, setLastWin] = useState<number | null>(null);
   const [quizOpen, setQuizOpen] = useState(false);
+  const [shownBalance, setShownBalance] = useState<number | null>(null);
+  const [change, setChange] = useState<number | null>(null);
 
   const stopped = useRef(0);
   const winRef = useRef(0);
 
   const balance = profile?.balance ?? 0;
+  const displayBalance = shownBalance ?? balance;
+
+  const changeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const resultTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  function showChange(value: number, ms: number) {
+    clearTimeout(changeTimer.current);
+    setChange(value);
+    changeTimer.current = setTimeout(() => setChange(null), ms);
+  }
+
+  function hideChange() {
+    clearTimeout(changeTimer.current);
+    setChange(null);
+  }
+
+  function showResult(win: number) {
+    clearTimeout(resultTimer.current);
+    setLastWin(win);
+    resultTimer.current = setTimeout(() => setLastWin(null), RESULT_VISIBLE_MS);
+  }
+
+  useEffect(
+    () => () => {
+      clearTimeout(changeTimer.current);
+      clearTimeout(resultTimer.current);
+    },
+    []
+  );
 
   async function spin() {
     if (spinning) return;
@@ -40,7 +73,10 @@ export default function GameScreen() {
       return;
     }
     setSpinning(true);
+    clearTimeout(resultTimer.current);
     setLastWin(null);
+    setShownBalance(balance - bet);
+    showChange(-bet, BET_VISIBLE_MS);
 
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -49,6 +85,8 @@ export default function GameScreen() {
 
     if (error) {
       setSpinning(false);
+      setShownBalance(null);
+      hideChange();
       const msg = error.message;
       Alert.alert(
         'Błąd',
@@ -70,7 +108,10 @@ export default function GameScreen() {
     if (stopped.current < 3) return;
 
     await refreshProfile();
-    setLastWin(winRef.current);
+    setShownBalance(null);
+    if (winRef.current > 0) showChange(winRef.current, RESULT_VISIBLE_MS);
+    else hideChange();
+    showResult(winRef.current);
     setSpinning(false);
     if (winRef.current > 0) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -86,9 +127,16 @@ export default function GameScreen() {
     <ThemedView style={{ flex: 1, padding: 24, justifyContent: 'center' }}>
       <AppTitle style={{ position: 'absolute', top: insets.top + 16, left: 24 }} />
       <ThemedText style={{ fontSize: 24, lineHeight: 32, fontWeight: '600' }}>Cześć, {profile?.nick}</ThemedText>
-      <ThemedText style={{ fontSize: 40, lineHeight: 48, fontWeight: '700', marginBottom: 24 }}>
-        {balance} ECTS
-      </ThemedText>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 12, marginBottom: 24 }}>
+        <ThemedText style={{ fontSize: 40, lineHeight: 48, fontWeight: '700' }}>
+          {displayBalance} ECTS
+        </ThemedText>
+        {change !== null && (
+          <ThemedText style={{ fontSize: 24, lineHeight: 32, fontWeight: '700', color: change < 0 ? '#DC2626' : '#16A34A' }}>
+            {change > 0 ? `+${change}` : change}
+          </ThemedText>
+        )}
+      </View>
       <View
         style={{
           flexDirection: 'row',
