@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useGameSounds } from '@/hooks/use-game-sounds';
 import { supabase } from '@/lib/supabase';
 
 
@@ -31,6 +32,8 @@ export default function GameScreen() {
   const [quizOpen, setQuizOpen] = useState(false);
   const [shownBalance, setShownBalance] = useState<number | null>(null);
   const [change, setChange] = useState<number | null>(null);
+
+  const { playSpin, stopSpin, playWin } = useGameSounds();
 
   const stopped = useRef(0);
   const winRef = useRef(0);
@@ -80,10 +83,12 @@ export default function GameScreen() {
 
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    playSpin();
 
     const { data, error } = await supabase.rpc('spin', { p_bet: bet });
 
     if (error) {
+      stopSpin();
       setSpinning(false);
       setShownBalance(null);
       hideChange();
@@ -107,6 +112,7 @@ export default function GameScreen() {
     Haptics.selectionAsync();
     if (stopped.current < 3) return;
 
+    stopSpin();
     await refreshProfile();
     setShownBalance(null);
     if (winRef.current > 0) showChange(winRef.current, RESULT_VISIBLE_MS);
@@ -115,6 +121,7 @@ export default function GameScreen() {
     setSpinning(false);
     if (winRef.current > 0) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      playWin();
     }
   }
 
