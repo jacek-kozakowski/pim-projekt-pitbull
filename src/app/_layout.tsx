@@ -10,8 +10,11 @@ import { loadThemePreference } from '@/lib/theme-preference';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { refreshReminders } from '@/lib/reminders';
 
 SplashScreen.preventAutoHideAsync();
+
+
 
 function Gate() {
   const { session, profile, loading, refreshProfile } = useAuth();
@@ -29,6 +32,7 @@ export default function TabLayout() {
 
   useEffect(() => {
     loadThemePreference();
+    refreshReminders();
   }, []);
 
   const base = dark ? DarkTheme : DefaultTheme;
