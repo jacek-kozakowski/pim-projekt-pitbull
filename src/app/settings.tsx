@@ -11,12 +11,15 @@ import { useTheme } from '@/hooks/use-theme';
 import { disableReminders, enableReminders, isRemindersEnabled } from '@/lib/reminders';
 import { supabase } from '@/lib/supabase';
 import { setThemePreference } from '@/lib/theme-preference';
+import { useSetting} from '@/lib/settings';
 
 export default function Settings() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const dark = useColorScheme() === 'dark';
   const [reminders, setReminders] = useState(false);
+  const [sound, setSound] = useSetting('sound');
+  const [haptics, setHaptics] = useSetting('haptics');
 
   useEffect(() => {
     isRemindersEnabled().then(setReminders);
@@ -54,6 +57,14 @@ export default function Settings() {
           onValueChange={(value) => setThemePreference(value ? 'dark' : 'light')}
           trackColor={{ true: theme.accent }}
         />
+      </View>
+      <View style={rowStyle}>
+        <ThemedText>Dźwięki</ThemedText>
+        <Switch value={sound} onValueChange={setSound} trackColor={{ true: theme.accent }} />
+      </View>
+      <View style={rowStyle}>
+        <ThemedText>Wibracje</ThemedText>
+        <Switch value={haptics} onValueChange={setHaptics} trackColor={{ true: theme.accent }} />
       </View>
       <View style={rowStyle}>
         <View style={{ flex: 1 }}>

@@ -11,6 +11,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { refreshReminders } from '@/lib/reminders';
+import { loadSettings } from '@/lib/settings';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,6 +33,7 @@ export default function TabLayout() {
 
   useEffect(() => {
     loadThemePreference();
+    loadSettings();
     refreshReminders();
   }, []);
 

@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +12,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useGameSounds } from '@/hooks/use-game-sounds';
 import { supabase } from '@/lib/supabase';
+import { haptic } from '@/lib/haptics';
 
 
 const BETS = [1, 5, 10];
@@ -82,7 +82,7 @@ export default function GameScreen() {
     showChange(-bet, BET_VISIBLE_MS);
 
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    haptic.impact();
     playSpin();
 
     const { data, error } = await supabase.rpc('spin', { p_bet: bet });
@@ -109,7 +109,7 @@ export default function GameScreen() {
 
   async function onReelStop() {
     stopped.current += 1;
-    Haptics.selectionAsync();
+    haptic.select();
     if (stopped.current < 3) return;
 
     stopSpin();
@@ -120,7 +120,7 @@ export default function GameScreen() {
     showResult(winRef.current);
     setSpinning(false);
     if (winRef.current > 0) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      haptic.success();
       playWin();
     }
   }

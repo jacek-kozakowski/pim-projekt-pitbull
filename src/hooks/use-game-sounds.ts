@@ -1,11 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { useEffect } from 'react';
-
+import { isOn } from '@/lib/settings';
 
 async function soundOn() {
     const v = await AsyncStorage.getItem('sound');
-    console.log('[sound] klucz sound =', v);
     return v !== 'off';
 }
 
@@ -19,7 +18,7 @@ export function useGameSounds() {
     }, [spin]);
 
     async function playSpin() {
-        if (!(await soundOn())) return;
+        if (!isOn('sound')) return;
         await spin.seekTo(0);
         spin.play();
     }
@@ -28,7 +27,7 @@ export function useGameSounds() {
         spin.pause();
     }
     async function playWin() {
-        if (!(await soundOn())) return;
+        if (!isOn('sound')) return;
         await win.seekTo(0);
         win.play();
     }
