@@ -121,17 +121,18 @@ export default function GameScreen() {
     if (stopped.current < 3) return;
 
     stopSpin();
+    // play the sound right away, don't wait for the network round trip
+    if (winRef.current > 0) {
+      haptic.success();
+      if (winRef.current >= 10 * bet) playBigWin();
+      else playWin();
+    }
     await refreshProfile();
     setShownBalance(null);
     if (winRef.current > 0) showChange(winRef.current, RESULT_VISIBLE_MS);
     else hideChange();
     showResult(winRef.current);
     setSpinning(false);
-    if (winRef.current > 0) {
-      haptic.success();
-      if (winRef.current >= 10 * bet) playBigWin();
-      else playWin();
-    }
   }
 
   function closeQuiz() {

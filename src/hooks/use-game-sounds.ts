@@ -1,11 +1,20 @@
 import { isOn } from "@/lib/settings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setAudioModeAsync, useAudioPlayer } from "expo-audio";
+import { setAudioModeAsync, useAudioPlayer, type AudioPlayer } from "expo-audio";
 import { useEffect } from "react";
 
 async function soundOn() {
   const v = await AsyncStorage.getItem("sound");
   return v !== "off";
+}
+
+// play() must run even if pause/seekTo fail, otherwise the sound is silently skipped
+async function restartAndPlay(player: AudioPlayer) {
+  try {
+    player.pause();
+    await player.seekTo(0);
+  } catch {}
+  player.play();
 }
 
 export function useGameSounds() {
@@ -29,14 +38,12 @@ export function useGameSounds() {
   }
   async function playWin() {
     if (!isOn("sound")) return;
-    await win.seekTo(0);
-    win.play();
+    await restartAndPlay(win);
   }
 
   async function playBigWin() {
     if (!isOn("sound")) return;
-    await bigWin.seekTo(0);
-    bigWin.play();
+    await restartAndPlay(bigWin);
   }
 
   return { playSpin, stopSpin, playWin, playBigWin };
