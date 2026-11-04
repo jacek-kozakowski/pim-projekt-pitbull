@@ -1,9 +1,18 @@
 import {useEffect, useRef} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
+import { SymbolView } from 'expo-symbols';
 
-export const SYMBOLS = ['7', 'J', 'Q', 'K', 'A'];//['7', '★', '☕', '✎', '▣'];
+// Order matters: the server returns the index into this list.
+export const SYMBOLS = [
+    { ios: '7.square.fill', android: 'filter_7' },
+    { ios: 'star.fill', android: 'star' },
+    { ios: 'cup.and.saucer.fill', android: 'coffee' },
+    { ios: 'pencil', android: 'edit' },
+    { ios: 'square.inset.filled', android: 'stop' },
+] as const;
 const N = SYMBOLS.length;
+const ICON_SIZE = 44;
 const REPEATS = 10;
 export const ITEM_H = 80;
 
@@ -57,7 +66,11 @@ export default function Reel({ spinId, target, delay, onStop, color }: Props) {
             <Animated.View style={style}>
                 {strip.map((s, i)=> (
                     <View key={i} style={styles.item}>
-                        <Text style={{ fontSize: 44, color }}>{s}</Text>
+                        <SymbolView
+                            name={{ ios: s.ios, android: s.android, web: s.android }}
+                            tintColor={color}
+                            size={ICON_SIZE}
+                        />
                     </View>
                 ))}
             </Animated.View>

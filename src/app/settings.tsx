@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentProps } from 'react';
+import { SymbolView } from 'expo-symbols';
 import { Alert, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +13,29 @@ import { disableReminders, enableReminders, isRemindersEnabled } from '@/lib/rem
 import { supabase } from '@/lib/supabase';
 import { setThemePreference } from '@/lib/theme-preference';
 import { useSetting} from '@/lib/settings';
+
+type IconName = ComponentProps<typeof SymbolView>['name'];
+
+function RowIcon({ ios, android }: { ios: string; android: string }) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.accent + '26',
+      }}>
+      <SymbolView
+        name={{ ios, android, web: android } as IconName}
+        tintColor={theme.accent}
+        size={20}
+      />
+    </View>
+  );
+}
 
 export default function Settings() {
   const theme = useTheme();
@@ -41,6 +65,7 @@ export default function Settings() {
     justifyContent: 'space-between',
     alignItems: 'center',
     alignSelf: 'stretch',
+    gap: 12,
     padding: 14,
     borderRadius: 12,
     backgroundColor: theme.backgroundElement,
@@ -51,7 +76,8 @@ export default function Settings() {
       <AppTitle style={{ position: 'absolute', top: insets.top + 16, left: 24 }} />
       <ThemedText type="subtitle">Ustawienia</ThemedText>
       <View style={rowStyle}>
-        <ThemedText>Ciemny motyw</ThemedText>
+        <RowIcon ios="moon.fill" android="dark_mode" />
+        <ThemedText style={{ flex: 1 }}>Ciemny motyw</ThemedText>
         <Switch
           value={dark}
           onValueChange={(value) => setThemePreference(value ? 'dark' : 'light')}
@@ -59,14 +85,17 @@ export default function Settings() {
         />
       </View>
       <View style={rowStyle}>
-        <ThemedText>Dźwięki</ThemedText>
+        <RowIcon ios="speaker.wave.2.fill" android="volume_up" />
+        <ThemedText style={{ flex: 1 }}>Dźwięki</ThemedText>
         <Switch value={sound} onValueChange={setSound} trackColor={{ true: theme.accent }} />
       </View>
       <View style={rowStyle}>
-        <ThemedText>Wibracje</ThemedText>
+        <RowIcon ios="iphone.radiowaves.left.and.right" android="vibration" />
+        <ThemedText style={{ flex: 1 }}>Wibracje</ThemedText>
         <Switch value={haptics} onValueChange={setHaptics} trackColor={{ true: theme.accent }} />
       </View>
       <View style={rowStyle}>
+        <RowIcon ios="bell.fill" android="notifications" />
         <View style={{ flex: 1 }}>
           <ThemedText>Przypomnienia</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
